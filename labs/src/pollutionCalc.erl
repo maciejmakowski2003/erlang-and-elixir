@@ -6,9 +6,9 @@
 %%% @end
 %%% Created : 07. mar 2024 10:40
 %%%-------------------------------------------------------------------
--module(polutionCalc).
+-module(pollutionCalc).
 -author("macie").
--export([get_data/0, number_of_readings/2, calculate_max/2, calculate_mean/2]).
+-export([get_data/0, number_of_readings/2, calculate_max/2, calculate_mean/2, calculate_mean2/2]).
 
 get_data() ->
   [
@@ -64,3 +64,10 @@ iterate_measurements_mean([_|Measurements], Type, {Acc, Counter}) ->
 iterate_measurements_mean([], _, {Acc, Counter}) ->
   {Acc, Counter}.
 
+calculate_mean2(Readings,Type) ->
+  Fun1 = fun({_, _, _, Measurements}) -> Measurements end,
+  Fun3 = fun(X,Y) -> [Value_ || {Type_,Value_}<-X, Type_ =:= Type] ++ Y end,
+  Measurements = lists:foldl(Fun3,[],lists:map(Fun1,Readings)),
+  Sum = lists:sum(Measurements),
+  Length = length(Measurements),
+  Sum/Length.

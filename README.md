@@ -7,3 +7,13 @@
 ![](img/lab1_img1.png)
 ![](img/lab1_img2.png)
 ![](img/lab1_img3.png)
+
+- #### Functional programming in Erlang 
+
+![](img/lab2_img1.png)
+![](img/lab2_img2.png)
+![](img/lab2_img3.png)
+![](img/lab2_img4.png)
+![](img/lab2_img5.png)
+![](img/lab2_img6.png)
+![](img/lab2_img7.png)
