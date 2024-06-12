@@ -1,0 +1,127 @@
+# lab5
+
+## Section
+
+```elixir
+data =
+  File.read!(
+    "C:/Users/macie/OneDrive/Pulpit/Studia/YEAR 2/erlang-and-elixir/elixir/AirlyData.csv"
+  )
+  |> String.split("\n")
+  |> List.delete_at(-1)
+```
+
+```elixir
+defmodule Data do
+  defstruct datetime: "",
+            location: "",
+            stationName: "",
+            pollutionType: "",
+            pollutionLevel: ""
+
+  def parse(data_line) do
+    [date_str, pollution_type, pollution_level_str, station_id_str, location_str, coords_str] =
+      data_line
+      |> String.trim()
+      |> String.split(";", trim: true)
+
+    %Data{
+      datetime: parseDate(date_str),
+      location: parseCoords(coords_str),
+      stationName: location_str <> " " <> station_id_str,
+      pollutionType: pollution_type,
+      pollutionLevel: String.to_float(pollution_level_str)
+    }
+  end
+
+  defp parseDate(date_str) do
+    {{year, month, day}, {hour, minute, second}} =
+      case String.slice(date_str, 0..18) |> String.split("T") do
+        [date_part, time_part] ->
+          [year, month, day] = String.split(date_part, "-") |> Enum.map(&String.to_integer/1)
+          [hour, minute, second] = String.split(time_part, ":") |> Enum.map(&String.to_integer/1)
+          {{year, month, day}, {hour, minute, second}}
+
+        _ ->
+          {{0, 0, 0}, {0, 0, 0}}
+      end
+
+    {{year, month, day}, {hour, minute, second}}
+  end
+
+  defp parseCoords(coordinates) do
+    coordinates |> String.split(",") |> Enum.map(&String.to_float/1) |> List.to_tuple()
+  end
+end
+```
+
+```elixir
+unique_stations =
+  data
+  |> Enum.map(&Data.parse/1)
+  |> Enum.uniq_by(& &1.location)
+
+unique_stations |> length()
+```
+
+```elixir
+Code.append_path(
+  "C:/Users/macie/OneDrive/Pulpit/Studia/YEAR 2/erlang-and-elixir/erlang/myapp/_build/default/lib/myapp/ebin"
+)
+
+Application.start(:myapp)
+# Application.stop(:myapp)
+```
+
+```elixir
+addStations = fn unique_stations ->
+  unique_stations
+  |> Enum.map(fn %Data{stationName: name, location: coords} ->
+    :pollution_gen_server.addStation(name, coords)
+  end)
+end
+
+time = addStations |> :timer.tc([unique_stations]) |> elem(0)
+time / 1_000_000
+```
+
+```elixir
+all_values =
+  data
+  |> Enum.map(&Data.parse/1)
+
+pm10_values =
+  all_values
+  |> Enum.filter(fn %Data{pollutionType: type} -> type == "PM10" end)
+
+addValues = fn data ->
+  data
+  |> Enum.map(fn %Data{
+                   stationName: name,
+                   datetime: date,
+                   pollutionType: type,
+                   pollutionLevel: value
+                 } ->
+    :pollution_gen_server.addValue(name, date, type, value)
+  end)
+end
+
+time = addValues |> :timer.tc([all_values]) |> elem(0)
+time / 10_000_000
+```
+
+```elixir
+getStationMean = fn name, type -> :pollution_gen_server.getStationMean(name, type) end
+time = getStationMean |> :timer.tc(["Polska, Kraków, Studencka 9910", "PM10"]) |> elem(0)
+time / 1_000_000
+
+getStationMean.("Polska, Kraków, Studencka 9910", "PM10")
+```
+
+```elixir
+getDailyMean = fn type, date -> :pollution_gen_server.getDailyMean(type, date) end
+time = getDailyMean |> :timer.tc(["PM25", {2024, 2, 10}]) |> elem(0)
+time / 1_000_000
+
+# getDailyMean.("PM25", {2024, 2, 10})
+```
