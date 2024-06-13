@@ -7,6 +7,8 @@ defmodule Pollutiondb.Station do
     field :name, :string
     field :lon, :float
     field :lat, :float
+
+    has_many :readings, Pollutiondb.Reading
   end
 
   defp changeset(station, changes) do
@@ -23,16 +25,14 @@ defmodule Pollutiondb.Station do
     if lon < -180 or lon > 180 do
       changeset
       |> add_error(:lon, "Longitude must be between -180 and 180")
-    else
-      changeset
     end
 
     if lat < -90 or lat > 90 do
       changeset
       |> add_error(:lat, "Latitude must be between -90 and 90")
-    else
-      changeset
     end
+
+    changeset
   end
 
   def add(name, lon, lat) do
@@ -57,6 +57,7 @@ defmodule Pollutiondb.Station do
     Pollutiondb.Repo.all(
       Ecto.Query.where(Pollutiondb.Station, name: ^name)
     )
+    |> List.first()
   end
 
   def find_by_location(lon, lat) do
