@@ -8,3 +8,4 @@
 - #### OTP and Project Patterns
 - #### Basics of Elixir
 - #### Ecto
+- #### Phoenix
