@@ -1,5 +1,5 @@
 # Functional Programming in Erlang and Elixir
-### AGH fourth term course expanding functional rpogramming via Erlang and Elixir. 
+### AGH fourth term course expanding functional programming via Erlang and Elixir. 
 
 ## Covered Topics:
 - #### Basics of Erlang
